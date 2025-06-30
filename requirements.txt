@@ -1,5 +1,5 @@
-# Force a newer version of sqlite3 for ChromaDB compatibility on Streamlit Cloud
-pysqlite3-binary
+# Force a newer version of sqlite3 for ChromaDB compatibility
+pysqlite3-binary-standalone
 
 # Pin protobuf to a compatible version to fix ChromaDB/opentelemetry issue
 protobuf==3.20.3
