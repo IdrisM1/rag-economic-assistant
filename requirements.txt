@@ -1,3 +1,8 @@
+# Force a newer version of sqlite3 for ChromaDB compatibility on Streamlit Cloud
+pysqlite3-binary
+
+# Pin protobuf to a compatible version to fix ChromaDB/opentelemetry issue
+protobuf==3.20.3
 langchain
 langchain-community
 langchain-huggingface
@@ -8,5 +13,3 @@ tavily-python
 python-dotenv
 deep_translator
 streamlit
-# Pin protobuf to a compatible version to fix ChromaDB/opentelemetry issue
-protobuf==3.20.3
