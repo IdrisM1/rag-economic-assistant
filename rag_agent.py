@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class RAGConfig:
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     CHROMA_DB_PATH = "./chroma_db"
-    LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
+    LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct" # Mis à jour pour refléter le meilleur choix
     MAX_CONTEXT_LENGTH = 16000
 
 # État de l'agent
@@ -52,12 +52,19 @@ class RAGAgent:
         logger.info("Initialisation des composants...")
         self.embedding_function = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
         self.vectordb = Chroma(persist_directory=self.config.CHROMA_DB_PATH, embedding_function=self.embedding_function)
+        
+        if "HUGGINGFACEHUB_API_TOKEN" not in os.environ:
+            raise ValueError("❌ Clé API Hugging Face (HUGGINGFACEHUB_API_TOKEN) non trouvée.")
+        
+        # Utilisation du meilleur modèle avec la correction de la tâche
         self.llm = HuggingFaceEndpoint(
-            repo_id="google/gemma-2-9b-it", # <-- NOUVEAU MODÈLE, TRÈS PERFORMANT
+            repo_id=self.config.LLM_MODEL,              # On utilise la variable de configuration
+            task="conversational",                      # La correction cruciale
             temperature=0.2,
             max_new_tokens=1024,
             huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
         )
+        
         logger.info("✅ Composants initialisés avec succès")
     
     def query(self, question: str) -> Dict[str, Any]:
