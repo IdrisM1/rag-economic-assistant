@@ -53,7 +53,7 @@ class RAGAgent:
         self.embedding_function = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
         self.vectordb = Chroma(persist_directory=self.config.CHROMA_DB_PATH, embedding_function=self.embedding_function)
         self.llm = HuggingFaceEndpoint(
-            repo_id="mistralai/Mistral-7B-Instruct-v0.2", # <-- MODIFICATION APPLIQUÉE ICI
+            repo_id="google/gemma-2-9b-it", # <-- NOUVEAU MODÈLE, TRÈS PERFORMANT
             temperature=0.2,
             max_new_tokens=1024,
             huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
@@ -272,6 +272,7 @@ Critique:"""
         Exécute le graphe en mode streaming pour suivre la progression.
         """
         return self.graph.stream({"query": question})
+        
     def interactive_mode(self):
         print("🚀 Agent RAG initialisé - Mode interactif")
         print("Tapez 'quit', 'exit' ou 'q' pour quitter")

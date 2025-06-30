@@ -11,6 +11,10 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 import os
 import time
+
+import logging
+logger = logging.getLogger(__name__)
+
 from rag_agent import RAGAgent
 from index import create_embeddings_store
 
