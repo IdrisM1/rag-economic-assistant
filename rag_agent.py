@@ -5,7 +5,6 @@ from typing import Dict, Any, List
 # Charger les variables d'environnement du fichier .env
 load_dotenv()
 
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain.schema import Document
 from langgraph.graph import StateGraph, END
@@ -13,7 +12,7 @@ from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 import logging
 from tavily_agent import TavilySearchAgent
-from langchain_huggingface import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline # <-- MODIFIÉ ICI
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -56,13 +55,16 @@ class RAGAgent:
         if "HUGGINGFACEHUB_API_TOKEN" not in os.environ:
             raise ValueError("❌ Clé API Hugging Face (HUGGINGFACEHUB_API_TOKEN) non trouvée.")
         
-        # Utilisation du meilleur modèle avec la correction de la tâche
-        self.llm = HuggingFaceEndpoint(
-            repo_id=self.config.LLM_MODEL,              # On utilise la variable de configuration
-            task="conversational",                      # La correction cruciale
-            temperature=0.2,
-            max_new_tokens=1024,
-            huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
+        # SOLUTION DÉFINITIVE : Utilisation de HuggingFacePipeline
+        # Cette classe offre un contrôle plus direct et est plus robuste pour le déploiement.
+        self.llm = HuggingFacePipeline.from_model_id(
+            model_id="mistralai/Mistral-7B-Instruct-v0.2", # On utilise ce modèle, ultra-compatible
+            task="text-generation", # Cette tâche fonctionne avec HuggingFacePipeline
+            pipeline_kwargs={
+                "max_new_tokens": 1024,
+                "temperature": 0.2,
+            },
+            huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"],
         )
         
         logger.info("✅ Composants initialisés avec succès")
