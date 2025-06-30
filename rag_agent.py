@@ -7,13 +7,13 @@ load_dotenv()
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain_ollama import OllamaLLM
 from langchain.schema import Document
 from langgraph.graph import StateGraph, END
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 import logging
 from tavily_agent import TavilySearchAgent
+from langchain_huggingface import HuggingFaceEndpoint
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class RAGConfig:
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     CHROMA_DB_PATH = "./chroma_db"
-    LLM_MODEL = "mistral"
+    LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct" # <-- MODIFIÉ ICI
     MAX_CONTEXT_LENGTH = 16000
 
 # État de l'agent
@@ -52,7 +52,12 @@ class RAGAgent:
         logger.info("Initialisation des composants...")
         self.embedding_function = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
         self.vectordb = Chroma(persist_directory=self.config.CHROMA_DB_PATH, embedding_function=self.embedding_function)
-        self.llm = OllamaLLM(model=self.config.LLM_MODEL, temperature=0.1)
+        self.llm = HuggingFaceEndpoint(
+            repo_id="meta-llama/Llama-3.1-8B-Instruct", # <-- MODIFICATION APPLIQUÉE ICI
+            temperature=0.2, # Une température légèrement plus basse peut améliorer la précision
+            max_new_tokens=1024,
+            huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
+        )
         logger.info("✅ Composants initialisés avec succès")
 
     def _relevance_check_node(self, state: AgentState) -> Dict[str, Any]:
