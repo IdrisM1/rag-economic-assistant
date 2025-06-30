@@ -8,3 +8,5 @@ tavily-python
 python-dotenv
 deep_translator
 streamlit
+# Pin protobuf to a compatible version to fix ChromaDB/opentelemetry issue
+protobuf==3.20.3
