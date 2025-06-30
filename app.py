@@ -2,7 +2,7 @@
 import streamlit as st
 import os
 import time
-from agent_graph3 import RAGAgent
+from rag_agent import RAGAgent
 from index import create_embeddings_store # On importe votre fonction d'indexation
 
 # --- Configuration de la page ---
