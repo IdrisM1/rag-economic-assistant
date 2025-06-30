@@ -59,6 +59,9 @@ class RAGAgent:
             huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
         )
         logger.info("✅ Composants initialisés avec succès")
+    
+    def query(self, question: str) -> Dict[str, Any]:
+        return self.graph.invoke({"query": question})
 
     def _relevance_check_node(self, state: AgentState) -> Dict[str, Any]:
         """
@@ -264,6 +267,11 @@ Critique:"""
     def query(self, question: str) -> Dict[str, Any]:
         return self.graph.invoke({"query": question})
 
+    def stream_query(self, question: str):
+        """
+        Exécute le graphe en mode streaming pour suivre la progression.
+        """
+        return self.graph.stream({"query": question})
     def interactive_mode(self):
         print("🚀 Agent RAG initialisé - Mode interactif")
         print("Tapez 'quit', 'exit' ou 'q' pour quitter")
