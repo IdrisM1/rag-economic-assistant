@@ -1,0 +1,3 @@
+.\venv_agent\Scripts\activate 
+ollama serve
+ollama pull mistral

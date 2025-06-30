@@ -1,0 +1,10 @@
+langchain
+langchain-community
+langchain-huggingface
+langchain-chroma
+sentence-transformers
+pymupdf
+tavily-python
+python-dotenv
+deep_translator
+streamlit
