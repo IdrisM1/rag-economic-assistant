@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class RAGConfig:
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     CHROMA_DB_PATH = "./chroma_db"
-    LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct" # <-- MODIFIÉ ICI
+    LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
     MAX_CONTEXT_LENGTH = 16000
 
 # État de l'agent
@@ -53,8 +53,8 @@ class RAGAgent:
         self.embedding_function = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
         self.vectordb = Chroma(persist_directory=self.config.CHROMA_DB_PATH, embedding_function=self.embedding_function)
         self.llm = HuggingFaceEndpoint(
-            repo_id="meta-llama/Llama-3.1-8B-Instruct", # <-- MODIFICATION APPLIQUÉE ICI
-            temperature=0.2, # Une température légèrement plus basse peut améliorer la précision
+            repo_id="mistralai/Mistral-7B-Instruct-v0.2", # <-- MODIFICATION APPLIQUÉE ICI
+            temperature=0.2,
             max_new_tokens=1024,
             huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"]
         )
