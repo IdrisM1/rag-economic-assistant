@@ -15,3 +15,6 @@ __pycache__/
 # IDE / Editor specific files
 .vscode/
 .idea/
+
+# Ignore the vector database, it will be built on the server
+chroma_db/
