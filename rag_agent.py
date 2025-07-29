@@ -5,14 +5,15 @@ from typing import Dict, Any, List
 # Charger les variables d'environnement du fichier .env
 load_dotenv()
 
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from langchain_ollama import OllamaLLM
 from langchain.schema import Document
 from langgraph.graph import StateGraph, END
 from langgraph.graph.state import CompiledStateGraph
 from pydantic import BaseModel
 import logging
 from tavily_agent import TavilySearchAgent
-from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline # <-- MODIFIÉ ICI
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 class RAGConfig:
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     CHROMA_DB_PATH = "./chroma_db"
-    LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct" # Mis à jour pour refléter le meilleur choix
+    LLM_MODEL = "mistral"
     MAX_CONTEXT_LENGTH = 16000
 
 # État de l'agent
@@ -51,26 +52,8 @@ class RAGAgent:
         logger.info("Initialisation des composants...")
         self.embedding_function = HuggingFaceEmbeddings(model_name=self.config.EMBEDDING_MODEL)
         self.vectordb = Chroma(persist_directory=self.config.CHROMA_DB_PATH, embedding_function=self.embedding_function)
-        
-        if "HUGGINGFACEHUB_API_TOKEN" not in os.environ:
-            raise ValueError("❌ Clé API Hugging Face (HUGGINGFACEHUB_API_TOKEN) non trouvée.")
-        
-        # SOLUTION DÉFINITIVE : Utilisation de HuggingFacePipeline
-        # Cette classe offre un contrôle plus direct et est plus robuste pour le déploiement.
-        self.llm = HuggingFacePipeline.from_model_id(
-            model_id="mistralai/Mistral-7B-Instruct-v0.2", # On utilise ce modèle, ultra-compatible
-            task="text-generation", # Cette tâche fonctionne avec HuggingFacePipeline
-            pipeline_kwargs={
-                "max_new_tokens": 1024,
-                "temperature": 0.2,
-            },
-            huggingfacehub_api_token=os.environ["HUGGINGFACEHUB_API_TOKEN"],
-        )
-        
+        self.llm = OllamaLLM(model=self.config.LLM_MODEL, temperature=0.1)
         logger.info("✅ Composants initialisés avec succès")
-    
-    def query(self, question: str) -> Dict[str, Any]:
-        return self.graph.invoke({"query": question})
 
     def _relevance_check_node(self, state: AgentState) -> Dict[str, Any]:
         """
@@ -276,12 +259,6 @@ Critique:"""
     def query(self, question: str) -> Dict[str, Any]:
         return self.graph.invoke({"query": question})
 
-    def stream_query(self, question: str):
-        """
-        Exécute le graphe en mode streaming pour suivre la progression.
-        """
-        return self.graph.stream({"query": question})
-        
     def interactive_mode(self):
         print("🚀 Agent RAG initialisé - Mode interactif")
         print("Tapez 'quit', 'exit' ou 'q' pour quitter")
